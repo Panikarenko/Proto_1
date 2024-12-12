@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum Prototype</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .post {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+
+        .post .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .links {
+            margin-top: 10px;
+        }
+
+        .links a {
+            display: block;
+            color: blue;
+            text-decoration: none;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Forum</h1>
+
+        <div id="postForm">
+            <textarea id="textInput" placeholder="Write your post text here..." rows="4"
+                style="width: 100%;"></textarea>
+            <input id="linkInput" type="url" placeholder="Add a link (required)" style="width: 100%; margin-top: 10px;">
+            <button id="postButton" style="margin-top: 10px; width: 100%;">Post</button>
+        </div>
+
+        <h2>Posts</h2>
+        <div id="postsContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('postButton').addEventListener('click', function () {
+            const textInput = document.getElementById('textInput').value.trim();
+            const linkInput = document.getElementById('linkInput').value.trim();
+
+            if (!linkInput) {
+                alert('You must include at least one valid link.');
+                return;
+            }
+
+            if (!isValidUrl(linkInput)) {
+                alert('The link is not valid. Please provide a valid URL.');
+                return;
+            }
+
+            const postsContainer = document.getElementById('postsContainer');
+
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+
+            if (textInput) {
+                const textElement = document.createElement('p');
+                textElement.textContent = textInput;
+                postElement.appendChild(textElement);
+            }
+
+            const linksSection = document.createElement('div');
+            linksSection.className = 'links';
+
+            const linkElement = document.createElement('a');
+            linkElement.href = linkInput;
+            linkElement.textContent = linkInput;
+            linkElement.target = '_blank';
+            linksSection.appendChild(linkElement);
+
+            postElement.appendChild(linksSection);
+
+            const actionsSection = document.createElement('div');
+            actionsSection.className = 'actions';
+
+            const likeButton = document.createElement('button');
+            likeButton.textContent = 'Like (0)';
+            let liked = false;
+            let disliked = false;
+
+            likeButton.addEventListener('click', function () {
+                const likeCount = parseInt(likeButton.textContent.match(/\d+/)[0]);
+                const dislikeCount = parseInt(dislikeButton.textContent.match(/\d+/)[0]);
+
+                if (!liked) {
+                    likeButton.textContent = `Like (${likeCount + 1})`;
+                    if (disliked) {
+                        dislikeButton.textContent = `Dislike (${dislikeCount - 1})`;
+                        disliked = false;
+                    }
+                    liked = true;
+                } else {
+                    likeButton.textContent = `Like (${likeCount - 1})`;
+                    liked = false;
+                }
+            });
+
+            const dislikeButton = document.createElement('button');
+            dislikeButton.textContent = 'Dislike (0)';
+
+            dislikeButton.addEventListener('click', function () {
+                const likeCount = parseInt(likeButton.textContent.match(/\d+/)[0]);
+                const dislikeCount = parseInt(dislikeButton.textContent.match(/\d+/)[0]);
+
+                if (!disliked) {
+                    dislikeButton.textContent = `Dislike (${dislikeCount + 1})`;
+                    if (liked) {
+                        likeButton.textContent = `Like (${likeCount - 1})`;
+                        liked = false;
+                    }
+                    disliked = true;
+                } else {
+                    dislikeButton.textContent = `Dislike (${dislikeCount - 1})`;
+                    disliked = false;
+                }
+            });
+
+            actionsSection.appendChild(likeButton);
+            actionsSection.appendChild(dislikeButton);
+            postElement.appendChild(actionsSection);
+
+            // Dodanie nowego postu na początek
+            postsContainer.insertBefore(postElement, postsContainer.firstChild);
+
+            // Wyczyszczenie pól po dodaniu posta
+            document.getElementById('textInput').value = '';
+            document.getElementById('linkInput').value = '';
+        });
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+    </script>
+</body>
+
+</html>
